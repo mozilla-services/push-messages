@@ -1,0 +1,148 @@
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Push Messages API
+  description: Internal API for accessing recent messages sent into Push, and for registering which public keys should be logged.
+  termsOfService: None
+  contact:
+    name: Push Team
+    email: push@mozilla.com
+    url: https://wiki.mozilla.org/CloudServices/Notifications/Push
+  license:
+    name: MPL2
+    url: https://www.mozilla.org/en-US/MPL/2.0/
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /keys:
+    get:
+      description:  Returns all public keys registered for message logging
+      operationId: getKeys
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: keys response
+          schema:
+            $ref: '#/definitions/keyListModel'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+    post:
+      description: Register a new public key to be logged
+      operationId: newKey
+      produces:
+        - application/json
+      responses:
+        '201':
+          description: Key registered
+          headers:
+            Location:
+              description: Key resource
+              type: string
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+  /keys/{key}:
+    delete:
+      description: Remove a registered key from logging
+      operationId: deleteKey
+      produces:
+        - application/json
+      parameters:
+        - name: key
+          in: path
+          description: Key to remove
+          required: true
+          type: string
+      responses:
+        '204':
+          description: key deleted
+        '404':
+          description: key not found
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+  /messages/{key}:
+    get:
+      description: Returns all the latest messages for the public key
+      operationId: getMessages
+      produces:
+        - application/json
+      parameters:
+        - name: key
+          in: path
+          description: public key
+          required: true
+          type: string
+      responses:
+        '200':
+          description: list of messages
+          schema:
+            type: object
+            required:
+              - messages
+            properties:
+              messages:
+                type: array
+                items:
+                  $ref: '#/definitions/messageModel'
+        '404':
+          description: public key not found
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errorModel'
+definitions:
+  keyListModel:
+    type: object
+    required:
+      - keys
+    properties:
+      keys:
+        type: array
+        items:
+          $ref: '#/definitions/publicKey'
+  publicKey:
+    type: object
+    required:
+      - public-key
+    properties:
+      public-key:
+        type: string
+  messageModel:
+    type: object
+    required:
+      - id
+      - timestamp
+      - size
+      - ttl
+    properties:
+      id:
+        type: string
+      timestamp:
+        type: string
+      size:
+        type: integer
+        format: int64
+      ttl:
+        type: integer
+        format: int64
+  errorModel:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
