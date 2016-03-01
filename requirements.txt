@@ -1,0 +1,5 @@
+-e git+https://github.com/bbangert/pyramid_swagger.git@880633242d3c076c6b05348da53794cb1f9658a4#egg=pyramid_swagger
+-e git+https://github.com/Yelp/bravado-core.git@764066bf62fee35a57ad3ef6d296c2e8d20e371e#egg=bravado-core
+redis==2.10.5
+boto3==1.2.5
+waitress==0.8.10
