@@ -30,14 +30,19 @@ paths:
           schema:
             $ref: '#/definitions/keyListModel'
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/definitions/errorModel'
+          $ref: "#/responses/unexpectedError"
     post:
       description: Register a new public key to be logged
       operationId: newKey
       produces:
         - application/json
+      parameters:
+        - name: key
+          description: Crypto public key
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/publicKey"
       responses:
         '201':
           description: Key registered
@@ -46,12 +51,10 @@ paths:
               description: Key resource
               type: string
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/definitions/errorModel'
+          $ref: "#/responses/unexpectedError"
   /keys/{key}:
     delete:
-      description: Remove a registered key from logging
+      description: Remove a public key from logging
       operationId: deleteKey
       produces:
         - application/json
@@ -67,9 +70,7 @@ paths:
         '404':
           description: key not found
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/definitions/errorModel'
+          $ref: "#/responses/unexpectedError"
   /messages/{key}:
     get:
       description: Returns all the latest messages for the public key
@@ -97,9 +98,12 @@ paths:
         '404':
           description: public key not found
         default:
-          description: unexpected error
-          schema:
-            $ref: '#/definitions/errorModel'
+          $ref: "#/responses/unexpectedError"
+responses:
+  unexpectedError:
+    description: unexpected error
+    schema:
+      $ref: "#/definitions/errorModel"
 definitions:
   keyListModel:
     type: object
