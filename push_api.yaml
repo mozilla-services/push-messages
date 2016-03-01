@@ -36,6 +36,13 @@ paths:
       operationId: newKey
       produces:
         - application/json
+      parameters:
+        - name: key
+          description: Crypto public key
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/publicKey"
       responses:
         '201':
           description: Key registered
