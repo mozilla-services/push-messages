@@ -42,5 +42,5 @@ def main(global_config, **settings):
     config.add_route('delete_key', '/keys/{key}', request_method='DELETE')
     config.add_route('get_messages', '/messages/{key}', request_method='GET')
 
-    config.scan()
+    config.scan(".views")
     return config.make_wsgi_app()
