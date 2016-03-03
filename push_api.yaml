@@ -2,7 +2,14 @@ swagger: '2.0'
 info:
   version: '1.0.0'
   title: Push Messages API
-  description: Internal API for accessing recent messages sent into Push, and for registering which public keys should be logged.
+  description: |
+    Internal API for accessing recent message metadata sent into the Mozilla
+    Push Service and maintaining a list of what VAPID public keys should have
+    their recent message metadata logged.
+
+    This API is intended for consumption by the Mozilla Push Developer
+    Dashboard for viewing recent messages a developers application server
+    has sent.
   termsOfService: None
   contact:
     name: Push Team
