@@ -8,8 +8,8 @@ import subprocess
 import unittest
 from unittest.case import SkipTest
 
-from mock import Mock
-from nose.tools import eq_, ok_
+from mock import Mock, patch
+from nose.tools import eq_, ok_, raises
 from pyramid import testing
 
 
@@ -24,11 +24,6 @@ ddb_process = None
 
 def setUp():
     boto3.setup_default_session()
-    import push_messages.db as db
-    db.dynamodb = boto3.resource(
-        "dynamodb", endpoint_url='http://localhost:8000',
-        region_name="us-east-1", verify=False,
-        aws_access_key_id="", aws_secret_access_key="")
     logging.getLogger('boto').setLevel(logging.CRITICAL)
     if "SKIP_INTEGRATION" in os.environ:  # pragma: nocover
         raise SkipTest("Skipping integration tests")
@@ -67,6 +62,7 @@ class ViewTests(unittest.TestCase):
             "pyramid_swagger.schema_directory": ".",
             "pyramid_swagger.schema_file": "push_api.yaml",
             "debug": "true",
+            "local_dynamodb": "true"
         })
         testapp = TestApp(app)
         result = testapp.get("/keys", status=200)
@@ -75,6 +71,25 @@ class ViewTests(unittest.TestCase):
 
         result = testapp.get("/messages/fred", status=404)
         eq_(result.body, "")
+
+    @patch("push_messages.resolve_elasticache_node")
+    def test_wsgi_app_with_elasticache(self, mock_resolve):
+        from push_messages import main
+        from webtest import TestApp
+        app = main({}, **{
+            "redis_elasticache": "acachename",
+            "redis_db": 0,
+            "dynamodb_key_table": "push_messages_db",
+            "pyramid_swagger.schema_directory": ".",
+            "pyramid_swagger.schema_file": "push_api.yaml",
+            "debug": "true",
+            "local_dynamodb": "true"
+        })
+        testapp = TestApp(app)
+        result = testapp.get("/keys", status=200)
+        data = json.loads(result.body)
+        eq_(data["keys"], [])
+        eq_(len(mock_resolve.mock_calls), 1)
 
     def test_get_keys(self):
         from .views import get_keys
@@ -114,10 +129,37 @@ class ViewTests(unittest.TestCase):
         info = get_messages(request)
         eq_(len(info["messages"]), 1)
 
+    def test_version(self):
+        from .views import version
+        request = testing.DummyRequest()
+        info = version(request)
+        eq_(len(info), 3)
+
+    def test_heartbeat(self):
+        from .views import heartbeat
+        request = testing.DummyRequest()
+        request.redis = Mock()
+        request.key_table = Mock()
+        info = heartbeat(request)
+        eq_(len(request.redis.mock_calls), 1)
+        eq_(len(request.key_table.mock_calls), 1)
+        eq_(info, {})
+
+    def test_lbheartbeat(self):
+        from .views import lbheartbeat
+        request = testing.DummyRequest()
+        info = lbheartbeat(request)
+        eq_(info, {})
+
 
 class DbTests(unittest.TestCase):
     def _makeFUT(self, *args, **kwargs):
         from push_messages.db import KeyResource
+        kwargs["db_options"] = dict(
+            endpoint_url="http://localhost:8000",
+            region_name="us-east-1", verify=False,
+            aws_access_key_id="", aws_secret_access_key=""
+        )
         return KeyResource(*args, **kwargs)
 
     def test_create(self):
@@ -138,3 +180,32 @@ class DbTests(unittest.TestCase):
 
         kr.delete_key("asdf")
         eq_(kr.all_keys(), [])
+
+    @patch("push_messages.db.boto3")
+    def test_resolve_elasticache(self, mock_boto):
+        from push_messages.db import resolve_elasticache_node
+        mock_boto.client.return_value = mock_client = Mock()
+        mock_client.describe_cache_clusters.return_value = dict(
+            CacheClusters=[
+                dict(
+                    CacheNodes=[
+                        dict(
+                            Endpoint=dict(Address="localhost")
+                        )
+                    ]
+                )
+            ]
+        )
+        resolve_elasticache_node("somename")
+        eq_(len(mock_client.mock_calls), 1)
+        eq_(len(mock_boto.mock_calls), 2)
+
+        # No cluster
+        mock_client.describe_cache_clusters.return_value = dict(
+            CacheClusters=[]
+        )
+
+        @raises(Exception)
+        def testit():
+            resolve_elasticache_node("somename")
+        testit()
