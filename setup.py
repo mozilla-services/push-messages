@@ -2,6 +2,8 @@ import os
 
 from setuptools import setup, find_packages
 
+from push_messages import __version__
+
 here = os.path.abspath(os.path.dirname(__file__))
 with open(os.path.join(here, 'README.md')) as f:
     README = f.read()
@@ -15,7 +17,7 @@ requires = [
     ]
 
 setup(name='push_messages',
-      version='0.1',
+      version=__version__,
       description='push_messages',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[

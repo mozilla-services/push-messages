@@ -4,6 +4,8 @@ from pyramid.exceptions import NotFound
 from pyramid.response import Response
 from pyramid.view import view_config
 
+import push_messages
+
 
 @view_config(route_name='get_keys', renderer='json')
 def get_keys(request):
@@ -29,6 +31,7 @@ def delete_key(request):
 @view_config(route_name='get_messages', renderer='json')
 def get_messages(request):
     messages = request.redis.lrange(request.matchdict['key'], 0, 200)
+    messages = filter(None, messages)
     if not messages:
         raise NotFound()
     loaded_messages = [json.loads(message) for message in messages]
@@ -40,3 +43,26 @@ def get_messages(request):
              'ttl': m['ttl']} for m in loaded_messages
         ]
     }
+
+
+# Healthcheck views
+
+@view_config(route_name="version", renderer="json")
+def version(request):
+    return dict(
+        source="https://github.com/mozilla-services/push-messages/",
+        version=push_messages.__version__,
+        commit="",
+    )
+
+
+@view_config(route_name="heartbeat", renderer="json")
+def heartbeat(request):
+    request.key_table.all_keys()
+    request.redis.lrange("dummykey", 0, 10)
+    return {}
+
+
+@view_config(route_name="lbheartbeat", renderer="json")
+def lbheartbeat(request):
+    return {}
