@@ -139,7 +139,8 @@ definitions:
       id:
         type: string
       timestamp:
-        type: string
+        type: integer
+        format: int64
       size:
         type: integer
         format: int64
