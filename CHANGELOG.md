@@ -1,3 +1,13 @@
+<a name="0.3"></a>
+## 0.3 (2016-04-07)
+
+
+#### Bug Fixes
+
+*   use floats for e-notation value ([47327494](https://github.com/mozilla-services/push-messages/commit/47327494d63505cc689174c2c9232a21828e4a2c))
+
+
+
 <a name="0.2"></a>
 ## 0.2 (2016-04-07)
 
