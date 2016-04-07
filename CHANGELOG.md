@@ -1,3 +1,13 @@
+<a name="0.2"></a>
+## 0.2 (2016-04-07)
+
+
+#### Bug Fixes
+
+*   timestamp should be a integer ([b7ed0448](https://github.com/mozilla-services/push-messages/commit/b7ed04488ad0d0a799c3596d7081ee87443d15f3))
+
+
+
 <a name="0.1"></a>
 ## 0.1 (2016-04-06)
 
