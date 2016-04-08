@@ -1,3 +1,13 @@
+<a name="0.4"></a>
+## 0.4 (2016-04-08)
+
+
+#### Bug Fixes
+
+*   coerce message values to ensure validation passes ([01c5d40b](https://github.com/mozilla-services/push-messages/commit/01c5d40b4cf06e1ff97773ac26b6e3e86effe799))
+
+
+
 <a name="0.3"></a>
 ## 0.3 (2016-04-07)
 

@@ -10,7 +10,7 @@ from push_messages.db import (
 )
 
 
-__version__ = "0.3"
+__version__ = "0.4"
 
 
 def empty_404(request):
