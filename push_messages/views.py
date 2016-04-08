@@ -38,9 +38,9 @@ def get_messages(request):
     return {
         'messages': [
             {'id': m['id'],
-             'timestamp': m['timestamp'],
-             'size': m['size'],
-             'ttl': m['ttl']} for m in loaded_messages
+             'timestamp': float(m['timestamp']),
+             'size': int(m['size']),
+             'ttl': int(m['ttl'])} for m in loaded_messages
         ]
     }
 
