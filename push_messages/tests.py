@@ -5,6 +5,8 @@ import os
 import psutil
 import signal
 import subprocess
+import time
+import uuid
 import unittest
 from unittest.case import SkipTest
 
@@ -71,6 +73,26 @@ class ViewTests(unittest.TestCase):
 
         result = testapp.get("/messages/fred", status=404)
         eq_(result.body, "")
+
+        # Insert a key
+        msg = dict(
+            id="asdfasdf",
+            ttl="60",
+            timestamp=time.time(),
+            size=20
+        )
+        dbkey = uuid.uuid4().hex
+        app.registry.redis_server.lpush(dbkey, json.dumps(msg))
+
+        result = testapp.get("/messages/%s" % dbkey)
+        eq_(json.loads(result.body), dict(
+            messages=[dict(
+                id="asdfasdf",
+                ttl=60,
+                timestamp=msg["timestamp"],
+                size=20
+            )]
+        ))
 
     @patch("push_messages.resolve_elasticache_node")
     def test_wsgi_app_with_elasticache(self, mock_resolve):

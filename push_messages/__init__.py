@@ -66,6 +66,7 @@ def main(global_config, **settings):
     if 'debug' in settings:
         settings['pyramid_swagger.exclude_routes'] = ['debugtoolbar']
     config = Configurator(settings=settings)
+    config.registry.redis_server = redis_server
     config.add_request_method(rs, 'redis', reify=True)
     config.add_request_method(key_table, reify=True)
 
