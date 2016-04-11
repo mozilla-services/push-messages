@@ -3,4 +3,3 @@
 redis==2.10.5
 boto3==1.2.5
 waitress==0.8.10
-psutil==4.0.0

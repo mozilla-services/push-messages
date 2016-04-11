@@ -2,19 +2,11 @@ import os
 
 import redis
 from pyramid.config import Configurator
-from pyramid.response import Response
 
-from push_messages.db import (
-    KeyResource,
-    resolve_elasticache_node,
-)
+from push_messages.db import resolve_elasticache_node
 
 
-__version__ = "0.4"
-
-
-def empty_404(request):
-    return Response("", status_code=404)
+__version__ = "0.5"
 
 
 def main(global_config, **settings):
@@ -33,8 +25,6 @@ def main(global_config, **settings):
         redis_host = os.environ.get("REDIS_HOST", settings['redis_host'])
     redis_port = int(os.environ.get("REDIS_PORT", "6379"))
     redis_db = int(os.environ.get("REDIS_DB", settings['redis_db']))
-    dynamodb_tablename = os.environ.get(
-        "DYNAMODB_TABLENAME", settings['dynamodb_key_table'])
 
     redis_server = redis.StrictRedis(
         host=redis_host,
@@ -52,25 +42,11 @@ def main(global_config, **settings):
     def rs(request):
         return redis_server
 
-    if "local_dynamodb" in settings:
-        opts = dict(endpoint_url="http://localhost:8000",
-                    region_name="us-east-1", verify=False,
-                    aws_access_key_id="", aws_secret_access_key="")
-    else:  # pragma: nocover
-        opts = {}
-    key_resource = KeyResource(dynamodb_tablename, db_options=opts)
-
-    def key_table(request):
-        return key_resource
-
     if 'debug' in settings:
         settings['pyramid_swagger.exclude_routes'] = ['debugtoolbar']
     config = Configurator(settings=settings)
     config.registry.redis_server = redis_server
     config.add_request_method(rs, 'redis', reify=True)
-    config.add_request_method(key_table, reify=True)
-
-    config.add_view(empty_404, context="pyramid.exceptions.NotFound")
 
     config.include('pyramid_swagger')
 

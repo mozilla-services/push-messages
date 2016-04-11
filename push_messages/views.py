@@ -9,32 +9,36 @@ import push_messages
 
 @view_config(route_name='get_keys', renderer='json')
 def get_keys(request):
-    return dict(keys=[{'public-key': x['pubkey']} for x in
-                      request.key_table.all_keys()])
+    return dict(keys=[{'public-key': v} for v in
+                      request.redis.hkeys("registered_keys")])
 
 
 @view_config(route_name='register_key')
 def register_key(request):
-    key = request.swagger_data['key']['public-key']
-    request.key_table.register_key(key)
-    loc = '/'.join([request.host_url, "keys", key])
+    public_key = request.swagger_data['key']['public-key']
+    request.redis.hset("registered_keys", public_key, "")
+    loc = '/'.join([request.host_url, "keys", public_key])
     return Response(status=201, headers={'Location': str(loc)})
 
 
 @view_config(route_name='delete_key')
 def delete_key(request):
     key = request.matchdict['key']
-    request.key_table.delete_key(key)
+    request.redis.hdel("registered_keys", key)
     return Response(status=204)
 
 
 @view_config(route_name='get_messages', renderer='json')
 def get_messages(request):
-    messages = request.redis.lrange(request.matchdict['key'], 0, 200)
-    messages = filter(None, messages)
-    if not messages:
+    public_key = request.matchdict['key']
+    if not request.redis.hexists("registered_keys", public_key):
         raise NotFound()
+
+    messages = request.redis.lrange(public_key, 0, 200)
+    messages = filter(None, messages)
     loaded_messages = [json.loads(message) for message in messages]
+    if not messages:
+        request.response.status_code = 204
     return {
         'messages': [
             {'id': m['id'],
@@ -45,7 +49,12 @@ def get_messages(request):
     }
 
 
-# Healthcheck views
+@view_config(context="pyramid.exceptions.NotFound")
+def empty_404(request):
+    return Response("", status_code=404)
+
+
+# Health-check views
 
 @view_config(route_name="version", renderer="json")
 def version(request):
