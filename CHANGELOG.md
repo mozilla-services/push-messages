@@ -1,3 +1,13 @@
+<a name="0.5"></a>
+## 0.5 (2016-04-11)
+
+
+#### Features
+
+*   return 404 for no registered key, and refactor for redis only ([959d20a6](https://github.com/mozilla-services/push-messages/commit/959d20a61b09a6e7272923feecd42b156fd987cd), closes [#6](https://github.com/mozilla-services/push-messages/issues/6))
+
+
+
 <a name="0.4"></a>
 ## 0.4 (2016-04-08)
 
