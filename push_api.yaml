@@ -102,6 +102,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/definitions/messageModel'
+        '204':
+          description: no messages
         '404':
           description: public key not found
         default:

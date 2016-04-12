@@ -38,7 +38,7 @@ def get_messages(request):
     messages = filter(None, messages)
     loaded_messages = [json.loads(message) for message in messages]
     if not messages:
-        request.response.status_code = 204
+        return Response(status=204)
     return {
         'messages': [
             {'id': m['id'],
