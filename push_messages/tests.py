@@ -60,6 +60,11 @@ class ViewTests(unittest.TestCase):
             )]
         ))
 
+        # Verify 204
+        app.registry.redis_server.delete(dbkey)
+        result = testapp.get("/messages/%s" % dbkey, status=204)
+        eq_(result.body, "")
+
     @patch("push_messages.resolve_elasticache_node")
     def test_wsgi_app_with_elasticache(self, mock_resolve):
         from push_messages import main
@@ -125,7 +130,7 @@ class ViewTests(unittest.TestCase):
                                                  "something")
 
     @raises(NotFound)
-    def test_get_messages_404(self):
+    def test_get_messages_404_error(self):
         from .views import get_messages
         request = testing.DummyRequest()
         request.matchdict["key"] = "something"
@@ -140,9 +145,8 @@ class ViewTests(unittest.TestCase):
         request.redis = Mock()
         request.redis.hexists.return_value = True
         request.redis.lrange.return_value = []
-        info = get_messages(request)
-        eq_(len(info["messages"]), 0)
-        eq_(request.response.status_code, 204)
+        response = get_messages(request)
+        eq_(response.status_code, 204)
         request.redis.hexists.assert_called_with("registered_keys",
                                                  "something")
 
