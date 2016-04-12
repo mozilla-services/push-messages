@@ -1,3 +1,17 @@
+<a name="0.6"></a>
+## 0.6 (2016-04-12)
+
+
+#### Features
+
+*   add circle.yml file for Dockerflow ([f125d53b](https://github.com/mozilla-services/push-messages/commit/f125d53beb3fb77703c481ec0fa2b5f004763928), closes [#14](https://github.com/mozilla-services/push-messages/issues/14))
+
+#### Bug Fixes
+
+*   properly return no content for 204 ([49d6ede1](https://github.com/mozilla-services/push-messages/commit/49d6ede19c0db1eb6cdbcaf6d4b1cb77860846da), closes [#16](https://github.com/mozilla-services/push-messages/issues/16))
+
+
+
 <a name="0.5"></a>
 ## 0.5 (2016-04-11)
 
