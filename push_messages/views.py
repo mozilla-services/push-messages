@@ -67,7 +67,6 @@ def version(request):
 
 @view_config(route_name="heartbeat", renderer="json")
 def heartbeat(request):
-    request.key_table.all_keys()
     request.redis.lrange("dummykey", 0, 10)
     return {}
 

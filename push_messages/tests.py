@@ -160,10 +160,8 @@ class ViewTests(unittest.TestCase):
         from .views import heartbeat
         request = testing.DummyRequest()
         request.redis = Mock()
-        request.key_table = Mock()
         info = heartbeat(request)
         eq_(len(request.redis.mock_calls), 1)
-        eq_(len(request.key_table.mock_calls), 1)
         eq_(info, {})
 
     def test_lbheartbeat(self):
