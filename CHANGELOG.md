@@ -1,3 +1,13 @@
+<a name="0.7"></a>
+## 0.7 (2016-04-14)
+
+
+#### Bug Fixes
+
+*   heartbeat shouldn't check for keytable ([45080730](https://github.com/mozilla-services/push-messages/commit/45080730f54cb06e4ea68e7dce2f7e53b8dee823))
+
+
+
 <a name="0.6"></a>
 ## 0.6 (2016-04-12)
 

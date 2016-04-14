@@ -6,7 +6,7 @@ from pyramid.config import Configurator
 from push_messages.db import resolve_elasticache_node
 
 
-__version__ = "0.6"
+__version__ = "0.7"
 
 
 def main(global_config, **settings):
